@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>foo-mi's devlog</title>
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      /* Dark theme (default) */
+      --bg:           #0a0a0c;
+      --surface:      #111115;
+      --border:       #1f1f26;
+      --muted:        #353540;
+      --subtle:       #52525e;
+      --body:         #a8a8b8;
+      --heading:      #e2e2ec;
+
+      /* burgundy */
+      --burg:         #1E0007;
+      --burg-mid:     #32000c;;
+      --burg-bright:  #780023;
+      --burg-text:    #6b0020;
+
+      /* olive */
+      --olive:        #3b4b21;
+      --olive-mid:    #5a7030;
+      --olive-bright: #8aaa44;
+      --olive-text:   #a8c860;
+
+      --font-serif: 'DM Serif Display', Georgia, serif;
+      --font-body:  'Lora', Georgia, serif;
+      --font-mono:  'IBM Plex Mono', monospace;
+      --ease: 160ms ease;
+    }
+
+    html[data-theme="light"] {
+      --bg:           #93a076;
+      --surface:      #a8b894;
+      --border:       #7a9a60;
+      --muted:        #6b8c48;
+      --subtle:       #5a7a38;
+      --body:         #2d0007;
+      --heading:      #6b0020;
+
+      /* burgundy */
+      --burg:         #dbdbdb;
+      --burg-mid:     #47393f;
+      --burg-bright:  #6b0020;
+      --burg-text:    #6b0020;
+
+      /* olive */
+      --olive:        #7a9a60;
+      --olive-mid:    #8aaa70;
+      --olive-bright: #5a7a38;
+      --olive-text:   #3d5014;
+    }
+
+    html { font-size: 16px; scroll-behavior: smooth; }
+
+    body {
+      background: var(--bg);
+      color: var(--body);
+      font-family: var(--font-body);
+      line-height: 1.75;
+      min-height: 100vh;
+    }
+
+    a { color: inherit; text-decoration: none; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; color: inherit; }
+
+    /* ─── Layout ─────────────────────────────────────────────── */
+
+    .wrap {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0 28px;
+    }
+
+    /* ─── Header ─────────────────────────────────────────────── */
+
+    header {
+      padding: 36px 0 30px;
+      margin-bottom: 52px;
+      border-bottom: 1px solid var(--border);
+      animation: fadeDown 0.45s ease both;
+    }
+
+    .header-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    .logo {
+      font-family: var(--font-serif);
+      font-size: clamp(2.2rem, 5vw, 3.2rem);
+      color: var(--heading);
+      letter-spacing: -0.02em;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+    }
+
+    .logo em {
+      font-style: italic;
+      color: var(--burg-text);
+    }
+
+    .tagline {
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      color: var(--subtle);
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      line-height: 1.6;
+      text-align: right;
+    }
+
+    .theme-toggle {
+      font-size: 1.4rem;
+      padding: 4px 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: var(--ease);
+    }
+    .theme-toggle:hover {
+      color: var(--burg-text);
+      transform: scale(1.1);
+    }
+
+    .sidebar-toggle {
+      display: none;
+      font-size: 1.3rem;
+      padding: 4px 8px;
+      margin-left: auto;
+    }
+    .sidebar-toggle:hover {
+      color: var(--burg-text);
+    }
+
+    .sidebar-close {
+      display: none;
+    }
+
+    /* ─── Main grid ──────────────────────────────────────────── */
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr 268px;
+      gap: 60px;
+      align-items: start;
+    }
+
+    @media (max-width: 740px) {
+      .sidebar-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        right: -100%;
+        width: 100%;
+        height: 100vh;
+        background: var(--bg);
+        border-left: 1px solid var(--border);
+        padding: 20px 28px;
+        overflow-y: auto;
+        transition: right 0.3s ease;
+        z-index: 1000;
+      }
+
+      .sidebar.open {
+        right: 0;
+      }
+
+      .sidebar-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 999;
+      }
+
+      .sidebar-overlay.open {
+        display: block;
+      }
+
+      .sidebar-close {
+        display: none;
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        font-size: 1.5rem;
+        cursor: pointer;
+        background: none;
+        border: none;
+        color: var(--body);
+        padding: 0;
+      }
+
+      .sidebar.open .sidebar-close {
+        display: block;
+      }
+
+      .sidebar .s-block {
+        margin-top: 15px;
+      }
+    }
+
+    /* ─── Post list ──────────────────────────────────────────── */
+
+    #list-view  { display: block; }
+    #post-view  { display: none; }
+
+    #post-list { display: flex; flex-direction: column; }
+
+    .card {
+      padding: 30px 0;
+      border-bottom: 1px solid var(--border);
+      cursor: pointer;
+      animation: fadeUp 0.4s ease both;
+    }
+    .card:first-child { padding-top: 0; }
+    .card:last-child  { border-bottom: none; padding-bottom: 0; }
+    .card:hover .card-title { color: var(--burg-text); }
+
+    .card-date {
+      font-family: var(--font-mono);
+      font-size: 0.65rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 10px;
+    }
+
+    .card-title {
+      font-family: var(--font-serif);
+      font-size: clamp(1.2rem, 2.4vw, 1.6rem);
+      color: var(--heading);
+      line-height: 1.25;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+      transition: color var(--ease);
+    }
+
+    .card-excerpt {
+      font-size: 0.9rem;
+      line-height: 1.8;
+      color: var(--body);
+      margin-bottom: 16px;
+    }
+
+    .card-foot {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .tag {
+      font-family: var(--font-mono);
+      font-size: 0.6rem;
+      letter-spacing: 0.09em;
+      text-transform: uppercase;
+      color: var(--olive-text);
+      background: var(--olive);
+      border: 1px solid var(--olive-mid);
+      padding: 3px 8px;
+      border-radius: 2px;
+    }
+
+    .rtime {
+      font-family: var(--font-mono);
+      font-size: 0.63rem;
+      color: var(--subtle);
+      letter-spacing: 0.06em;
+      margin-left: auto;
+    }
+
+    /* ─── Single post ────────────────────────────────────────── */
+
+    .back {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      margin-bottom: 40px;
+      cursor: pointer;
+      transition: color var(--ease);
+    }
+    .back:hover { color: var(--burg-text); }
+    .back::before { content: "←"; font-size: 1rem; line-height: 1; }
+
+    .post-head { margin-bottom: 36px; }
+
+    .post-head .card-date { margin-bottom: 12px; }
+
+    .post-head .card-title {
+      font-size: clamp(1.7rem, 4vw, 2.5rem);
+      margin-bottom: 18px;
+    }
+
+    .post-body {
+      font-size: 1rem;
+      line-height: 1.9;
+      color: var(--body);
+      border-top: 1px solid var(--border);
+      padding-top: 36px;
+    }
+
+    .post-body h2 {
+      font-family: var(--font-serif);
+      font-size: 1.35rem;
+      color: var(--heading);
+      margin: 40px 0 14px;
+      letter-spacing: -0.01em;
+    }
+
+    .post-body p { margin-bottom: 1.4em; }
+
+    .post-body pre {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-left: 3px solid var(--burg-mid);
+      border-radius: 3px;
+      padding: 18px 20px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 0.78rem;
+      line-height: 1.7;
+      margin: 24px 0;
+      color: var(--body);
+    }
+
+    .post-body code {
+      font-family: var(--font-mono);
+      font-size: 0.82em;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      padding: 2px 6px;
+      border-radius: 3px;
+      color: var(--olive-text);
+    }
+
+    .post-body pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: inherit;
+      color: inherit;
+    }
+
+    /* ─── Sidebar ────────────────────────────────────────────── */
+
+    .sidebar {
+      position: sticky;
+      top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    .s-block { animation: fadeUp 0.45s 0.08s ease both; }
+
+    .s-label {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--subtle);
+      padding-bottom: 10px;
+      margin-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── Calendar ───────────────────────────────────────────── */
+
+    .cal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+
+    .cal-month-name {
+      font-family: var(--font-serif);
+      font-size: 1.05rem;
+      color: var(--heading);
+    }
+
+    .cal-arrows {
+      display: flex;
+      gap: 4px;
+    }
+
+    .cal-arrows button {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--subtle);
+      padding: 3px 8px;
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      line-height: 1.2;
+      transition: var(--ease);
+    }
+    .cal-arrows button:hover {
+      color: var(--burg-text);
+      border-color: var(--burg-mid);
+    }
+
+    .cal-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 2px;
+    }
+
+    .cal-dow {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: var(--muted);
+      text-align: center;
+      padding: 2px 0 7px;
+    }
+
+    .cal-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--font-mono);
+      font-size: 0.68rem;
+      border-radius: 3px;
+      color: var(--muted);
+      transition: var(--ease);
+      position: relative;
+    }
+
+    .cal-day.empty { pointer-events: none; }
+
+    .cal-day.has-post {
+      color: var(--heading);
+      background: var(--burg);
+      border: 1px solid var(--burg-mid);
+      cursor: pointer;
+      font-weight: 500;
+    }
+    .cal-day.has-post:hover {
+      background: var(--burg-mid);
+      color: var(--burg-text);
+      border-color: var(--burg-bright);
+    }
+
+    .cal-day.today::after {
+      content: '';
+      position: absolute;
+      bottom: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 3px;
+      height: 3px;
+      border-radius: 50%;
+      background: var(--olive-bright);
+    }
+
+    .cal-day.selected {
+      background: var(--burg-bright) !important;
+      color: #fff !important;
+      border-color: var(--burg-bright) !important;
+    }
+
+    /* ─── Stats ──────────────────────────────────────────────── */
+
+    .stats {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+    }
+
+    .stat {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      padding: 12px 14px;
+    }
+
+    .stat-n {
+      font-family: var(--font-mono);
+      font-size: 1.35rem;
+      color: var(--heading);
+      font-weight: 500;
+      line-height: 1;
+      margin-bottom: 5px;
+    }
+
+    .stat-l {
+      font-family: var(--font-mono);
+      font-size: 0.55rem;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: var(--subtle);
+    }
+
+    /* ─── Tag cloud ──────────────────────────────────────────── */
+
+    .tag-cloud {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .tag-cloud .tag {
+      cursor: pointer;
+      transition: var(--ease);
+    }
+    .tag-cloud .tag:hover,
+    .tag-cloud .tag.on {
+      background: var(--olive-mid);
+      border-color: var(--olive-bright);
+      color: #fff;
+    }
+
+    /* ─── Empty ──────────────────────────────────────────────── */
+
+    .empty {
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      color: var(--subtle);
+      letter-spacing: 0.08em;
+      padding: 28px 0;
+    }
+
+    /* ─── Footer ─────────────────────────────────────────────── */
+
+    footer {
+      border-top: 1px solid var(--border);
+      margin-top: 80px;
+      padding: 22px 0;
+    }
+
+    .foot-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .foot-row span {
+      font-family: var(--font-mono);
+      font-size: 0.62rem;
+      color: var(--muted);
+      letter-spacing: 0.08em;
+    }
+
+    .pills { display: flex; gap: 6px; }
+
+    .pill {
+      font-family: var(--font-mono);
+      font-size: 0.56rem;
+      letter-spacing: 0.06em;
+      color: var(--muted);
+      border: 1px solid var(--border);
+      padding: 2px 7px;
+      border-radius: 2px;
+    }
+
+    /* ─── Animations ─────────────────────────────────────────── */
+
+    @keyframes fadeDown {
+      from { opacity: 0; transform: translateY(-10px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    .card:nth-child(1) { animation-delay: 0.04s; }
+    .card:nth-child(2) { animation-delay: 0.10s; }
+    .card:nth-child(3) { animation-delay: 0.16s; }
+    .card:nth-child(4) { animation-delay: 0.22s; }
+    .card:nth-child(5) { animation-delay: 0.28s; }
+
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: var(--bg); }
+    ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <div class="header-row">
+      <div style="display: flex; align-items: baseline; gap: 16px; width: 100%;">
+        <h1 class="logo" id="logo">foo-mi's <em>devlog</em></h1>
+        <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
+        <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
+      </div>
+      <p class="tagline">DevSecOps · AWS · Game Dev<br>security, cloud &amp; yay!</p>
+    </div>
+  </header>
+
+  <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+  <div class="grid">
+
+    <main>
+      <!-- List -->
+      <div id="list-view">
+        <div id="post-list"></div>
+      </div>
+
+      <!-- Single post -->
+      <div id="post-view">
+        <div class="back" id="back-btn">All Posts</div>
+        <article id="post-content"></article>
+      </div>
+    </main>
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <button class="sidebar-close" id="sidebar-close">✕</button>
+
+      <div class="s-block">
+        <div class="s-label">Published on</div>
+        <div class="cal-head">
+          <div class="cal-month-name" id="cal-label"></div>
+          <div class="cal-arrows">
+            <button id="cal-prev">←</button>
+            <button id="cal-next">→</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="cal-grid"></div>
+      </div>
+
+      <div class="s-block">
+        <div class="s-label">Stats</div>
+        <div class="stats">
+          <div class="stat"><div class="stat-n" id="s-posts">0</div><div class="stat-l">Posts</div></div>
+          <div class="stat"><div class="stat-n" id="s-topics">0</div><div class="stat-l">Topics</div></div>
+          <div class="stat"><div class="stat-n" id="s-mins">0</div><div class="stat-l">Avg min read</div></div>
+          <div class="stat"><div class="stat-n" id="s-month">0</div><div class="stat-l">This month</div></div>
+        </div>
+      </div>
+
+      <div class="s-block">
+        <div class="s-label">Topics</div>
+        <div class="tag-cloud" id="tag-cloud"></div>
+      </div>
+
+    </aside>
+  </div>
+
+  <footer>
+    <div class="foot-row">
+      <span>devlog · © <span id="yr"></span></span>
+      <div class="pills">
+        <span class="pill">bun</span>
+        <span class="pill">typescript</span>
+        <span class="pill">aws</span>
+      </div>
+    </div>
+  </footer>
+
+</div>
+<script>
+// ── Data ────────────────────────────────────────────────────────────────────
+
+let POSTS = [];
+let postDates = new Set();
+let activeTag = null;
+const now = new Date();
+let calY = now.getFullYear();
+let calM = now.getMonth();
+
+document.getElementById('yr').textContent = now.getFullYear();
+
+// ── Helpers ───────────────────────────────────────────────────────────────────
+
+function fmtDate(iso) {
+  return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function md2html(text) {
+  // code blocks first
+  text = text.replace(/```[\w]*\n([\s\S]*?)```/g, (_, code) =>
+    '<pre><code>' + code.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</code></pre>'
+  );
+  // inline code
+  text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
+  // h2
+  text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  // bold
+  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // paragraphs: split on double newline
+  const blocks = text.split(/\n\n+/);
+  return blocks.map(b => {
+    b = b.trim();
+    if (!b) return '';
+    if (b.startsWith('<h2>') || b.startsWith('<pre>')) return b;
+    // numbered list
+    if (/^\d+\.\s/.test(b)) {
+      const items = b.split('\n').filter(Boolean);
+      return '<ol style="margin:0 0 1.2em 1.4em">' + items.map(i => '<li style="margin-bottom:4px">' + i.replace(/^\d+\.\s/,'') + '</li>').join('') + '</ol>';
+    }
+    return '<p>' + b.replace(/\n/g,' ') + '</p>';
+  }).join('\n');
+}
+
+// ── Render post list ──────────────────────────────────────────────────────────
+
+function renderList(posts) {
+  const el = document.getElementById('post-list');
+  if (!posts.length) {
+    el.innerHTML = '<div class="empty">No posts found.</div>';
+    return;
+  }
+  el.innerHTML = posts.map(p => `
+    <div class="card" data-slug="${p.slug}">
+      <div class="card-date">${fmtDate(p.publishedAt)}</div>
+      <h2 class="card-title">${p.title}</h2>
+      <p class="card-excerpt">${p.excerpt}</p>
+      <div class="card-foot">
+        ${p.tags.map(t => `<span class="tag">${t}</span>`).join('')}
+        <span class="rtime">${p.readingTime} min read</span>
+      </div>
+    </div>`).join('');
+
+  el.querySelectorAll('.card').forEach(c =>
+    c.addEventListener('click', () => {
+      openPost(c.dataset.slug);
+      closeSidebar();
+    })
+  );
+}
+
+// ── Open single post ───────────────────────────────────────────────────────────
+
+async function openPost(slug) {
+  const p = POSTS.find(x => x.slug === slug);
+  if (!p) return;
+
+  document.getElementById('list-view').style.display = 'none';
+  document.getElementById('post-view').style.display = 'block';
+
+  // Fetch full post content if not already loaded
+  let fullPost = p;
+  if (!p.content) {
+    try {
+      const res = await fetch(`/api/posts/${slug}`);
+      const json = await res.json();
+      fullPost = json.data;
+    } catch (err) {
+      console.error('Failed to load post:', err);
+      return;
+    }
+  }
+
+  document.getElementById('post-content').innerHTML = `
+    <div class="post-head">
+      <div class="card-date">${fmtDate(fullPost.publishedAt)} &nbsp;·&nbsp; ${fullPost.readingTime} min read</div>
+      <h1 class="card-title">${fullPost.title}</h1>
+      <div class="card-foot" style="margin-top:4px">${fullPost.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
+    </div>
+    <div class="post-body">${md2html(fullPost.content)}</div>`;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+document.getElementById('back-btn').addEventListener('click', () => {
+  document.getElementById('post-view').style.display = 'none';
+  document.getElementById('list-view').style.display = 'block';
+});
+
+document.getElementById('logo').addEventListener('click', () => {
+  document.getElementById('post-view').style.display = 'none';
+  document.getElementById('list-view').style.display = 'block';
+  activeTag = null;
+  document.querySelectorAll('.tag-cloud .tag').forEach(t => t.classList.remove('on'));
+  renderList(POSTS);
+});
+
+// ── Stats ─────────────────────────────────────────────────────────────────────
+
+function renderStats() {
+  const allTags = new Set(POSTS.flatMap(p => p.tags));
+  const avg = Math.round(POSTS.reduce((s,p) => s + p.readingTime, 0) / POSTS.length);
+  const thisMonth = POSTS.filter(p => {
+    const d = new Date(p.publishedAt);
+    return d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }).length;
+
+  document.getElementById('s-posts').textContent  = POSTS.length;
+  document.getElementById('s-topics').textContent = allTags.size;
+  document.getElementById('s-mins').textContent   = avg;
+  document.getElementById('s-month').textContent  = thisMonth;
+}
+
+// ── Tag cloud ─────────────────────────────────────────────────────────────────
+
+function renderTagCloud() {
+  const counts = {};
+  POSTS.forEach(p => p.tags.forEach(t => { counts[t] = (counts[t] || 0) + 1; }));
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+  const cloud = document.getElementById('tag-cloud');
+  cloud.innerHTML = sorted.map(([t]) => `<span class="tag" data-tag="${t}">${t}</span>`).join('');
+
+  cloud.querySelectorAll('.tag').forEach(el => {
+    el.addEventListener('click', () => {
+      const t = el.dataset.tag;
+      if (activeTag === t) {
+        activeTag = null;
+        el.classList.remove('on');
+        renderList(POSTS);
+      } else {
+        activeTag = t;
+        cloud.querySelectorAll('.tag').forEach(x => x.classList.remove('on'));
+        el.classList.add('on');
+        renderList(POSTS.filter(p => p.tags.includes(t)));
+      }
+      document.getElementById('post-view').style.display = 'none';
+      document.getElementById('list-view').style.display = 'block';
+      closeSidebar();
+    });
+  });
+}
+
+// ── Calendar ──────────────────────────────────────────────────────────────────
+
+const MONTHS = ['January','February','March','April','May','June',
+                'July','August','September','October','November','December'];
+const DOW    = ['Su','Mo','Tu','We','Th','Fr','Sa'];
+
+function renderCalendar() {
+  document.getElementById('cal-label').textContent = `${MONTHS[calM]} ${calY}`;
+
+  const todayStr = now.toISOString().slice(0,10);
+  const firstDow  = new Date(calY, calM, 1).getDay();
+  const totalDays = new Date(calY, calM + 1, 0).getDate();
+
+  let html = DOW.map(d => `<div class="cal-dow">${d}</div>`).join('');
+
+  for (let i = 0; i < firstDow; i++) {
+    html += `<div class="cal-day empty"></div>`;
+  }
+
+  for (let d = 1; d <= totalDays; d++) {
+    const ds = `${calY}-${String(calM+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const has   = postDates.has(ds);
+    const today = ds === todayStr;
+    const cls   = ['cal-day', has ? 'has-post' : '', today ? 'today' : ''].filter(Boolean).join(' ');
+    html += `<div class="${cls}" data-date="${ds}">${d}</div>`;
+  }
+
+  const grid = document.getElementById('cal-grid');
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.cal-day.has-post').forEach(el => {
+    el.addEventListener('click', () => {
+      grid.querySelectorAll('.cal-day').forEach(d => d.classList.remove('selected'));
+      el.classList.add('selected');
+      document.getElementById('post-view').style.display = 'none';
+      document.getElementById('list-view').style.display = 'block';
+      renderList(POSTS.filter(p => p.publishedAt.startsWith(el.dataset.date)));
+      closeSidebar();
+    });
+  });
+}
+
+document.getElementById('cal-prev').addEventListener('click', () => {
+  calM--; if (calM < 0) { calM = 11; calY--; } renderCalendar();
+});
+document.getElementById('cal-next').addEventListener('click', () => {
+  calM++; if (calM > 11) { calM = 0; calY++; } renderCalendar();
+});
+
+// ── Boot ──────────────────────────────────────────────────────────────────────
+
+// Theme initialization
+const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+const savedTheme = localStorage.getItem('theme');
+const initialTheme = savedTheme || (prefersDark ? 'dark' : 'dark');
+
+function setTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    document.getElementById('theme-toggle').textContent = '☼';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    document.getElementById('theme-toggle').textContent = '☾';
+  }
+  localStorage.setItem('theme', theme);
+}
+
+document.getElementById('theme-toggle').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme') || 'dark';
+  setTheme(current === 'dark' ? 'light' : 'dark');
+});
+
+// ── Sidebar toggle ────────────────────────────────────────────────────────────
+
+const sidebar = document.getElementById('sidebar');
+const overlay = document.getElementById('sidebar-overlay');
+const sidebarToggle = document.getElementById('sidebar-toggle');
+const sidebarClose = document.getElementById('sidebar-close');
+
+function closeSidebar() {
+  sidebar.classList.remove('open');
+  overlay.classList.remove('open');
+}
+
+function openSidebar() {
+  sidebar.classList.add('open');
+  overlay.classList.add('open');
+}
+
+if (sidebarToggle) {
+  sidebarToggle.addEventListener('click', () => {
+    sidebar.classList.contains('open') ? closeSidebar() : openSidebar();
+  });
+}
+
+if (sidebarClose) {
+  sidebarClose.addEventListener('click', closeSidebar);
+}
+
+overlay.addEventListener('click', closeSidebar);
+
+setTheme(initialTheme);
+
+// ── Load data and boot ────────────────────────────────────────────────────────
+
+async function boot() {
+  try {
+    // Fetch posts and dates from API
+    const [postsRes, datesRes] = await Promise.all([
+      fetch('/api/posts'),
+      fetch('/api/dates')
+    ]);
+    
+    const postsData = await postsRes.json();
+    const datesData = await datesRes.json();
+    
+    POSTS = postsData.data;
+    postDates = new Set(datesData.data);
+    
+    // Render everything
+    renderList(POSTS);
+    renderStats();
+    renderTagCloud();
+    renderCalendar();
+  } catch (err) {
+    console.error('Failed to load blog data:', err);
+    document.getElementById('post-list').innerHTML = '<div class="empty">Failed to load posts. Please refresh the page.</div>';
+  }
+}
+
+boot();
+</script>
+</body>
+</html>

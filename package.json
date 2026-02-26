@@ -1,0 +1,12 @@
+{
+  "name": "tech-blog",
+  "version": "1.0.0",
+  "scripts": {
+    "dev":   "bun run --watch src/server.ts",
+    "start": "bun run src/server.ts",
+    "build": "bun build src/server.ts --outdir dist --target bun"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  }
+}
