@@ -7,8 +7,14 @@
   <link rel="icon" href="/favicon.ico" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=IBM+Plex+Mono:wght@300;400;500&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet" />
   <style>
+    @font-face {
+      font-family: 'Cornella';
+      src: url('/fonts/cornella.otf') format('opentype');
+      font-weight: normal;
+      font-style: normal;
+    }
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     :root {
@@ -33,9 +39,9 @@
       --olive-bright: #8aaa44;
       --olive-text:   #a8c860;
 
-      --font-serif: 'DM Serif Display', Georgia, serif;
+      --font-serif: 'Cornella', Georgia, serif;
       --font-body:  'Lora', Georgia, serif;
-      --font-mono:  'IBM Plex Mono', monospace;
+      --font-mono:  'Cornella', monospace;
       --ease: 160ms ease;
     }
 
@@ -99,7 +105,7 @@
     }
 
     .logo {
-      font-family: var(--font-serif);
+      font-family: 'DM Serif Display', Georgia, serif;
       font-size: clamp(2.2rem, 5vw, 3.2rem);
       color: var(--heading);
       letter-spacing: -0.02em;
@@ -614,6 +620,7 @@
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 3px; }
   </style>
+  <script defer src="https://cloud.umami.is/script.js" data-website-id="0e584a05-f535-4485-895f-663ea38f71ce"></script>
 </head>
 <body>
 <div class="wrap">
