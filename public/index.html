@@ -585,6 +585,12 @@
       border: 1px solid var(--border);
       padding: 2px 7px;
       border-radius: 2px;
+      transition: var(--ease);
+    }
+
+    .pill:hover {
+      color: var(--burg-text);
+      border-color: var(--burg-mid);
     }
 
     /* ─── Animations ─────────────────────────────────────────── */
@@ -619,7 +625,7 @@
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
         <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
       </div>
-      <p class="tagline">DevSecOps · AWS · Game Dev<br>security, cloud &amp; yay!</p>
+      <p class="tagline">software & game developement<br>a place where i can share my progress and ideas</p>
     </div>
   </header>
 
@@ -637,6 +643,7 @@
       <div id="post-view">
         <div class="back" id="back-btn">All Posts</div>
         <article id="post-content"></article>
+        <div id="giscus-container" style="max-width: 720px; margin: 60px auto 0; padding-top: 40px; border-top: 1px solid var(--border);"></div>
       </div>
     </main>
 
@@ -676,11 +683,11 @@
 
   <footer>
     <div class="foot-row">
-      <span>devlog · © <span id="yr"></span></span>
+      <span>foo-mi · © <span id="yr"></span></span>
       <div class="pills">
-        <span class="pill">bun</span>
-        <span class="pill">typescript</span>
-        <span class="pill">aws</span>
+        <a href="https://www.linkedin.com/in/funmi-koya/" target="_blank" class="pill">linkedin</a>
+        <a href="https://github.com/foo-mi" target="_blank" class="pill">github</a>
+        <a href="https://foo-mi.github.io/portfolio-site/" target="_blank" class="pill">portfolio</a>
       </div>
     </div>
   </footer>
@@ -786,6 +793,29 @@ async function openPost(slug) {
       <div class="card-foot" style="margin-top:4px">${fullPost.tags.map(t=>`<span class="tag">${t}</span>`).join('')}</div>
     </div>
     <div class="post-body">${md2html(fullPost.content)}</div>`;
+
+  // Load Giscus for this post
+  const giscusContainer = document.getElementById('giscus-container');
+  giscusContainer.innerHTML = '';
+  
+  const giscusScript = document.createElement('script');
+  giscusScript.src = 'https://giscus.app/client.js';
+  giscusScript.setAttribute('data-repo', 'foo-mi/dev-blog');
+  giscusScript.setAttribute('data-repo-id', 'R_kgDORY_rTw');
+  giscusScript.setAttribute('data-category', 'Comments');
+  giscusScript.setAttribute('data-category-id', 'DIC_kwDORY_rT84C3Q7l');
+  giscusScript.setAttribute('data-mapping', 'specific');
+  giscusScript.setAttribute('data-term', fullPost.slug);
+  giscusScript.setAttribute('data-strict', '0');
+  giscusScript.setAttribute('data-reactions-enabled', '1');
+  giscusScript.setAttribute('data-emit-metadata', '0');
+  giscusScript.setAttribute('data-input-position', 'top');
+  giscusScript.setAttribute('data-theme', 'dark_high_contrast');
+  giscusScript.setAttribute('data-lang', 'en');
+  giscusScript.setAttribute('data-loading', 'lazy');
+  giscusScript.setAttribute('crossorigin', 'anonymous');
+  giscusScript.async = true;
+  giscusContainer.appendChild(giscusScript);
 
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
