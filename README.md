@@ -1,6 +1,6 @@
-# devlog — Tech Blog
+# foo-mi's devlog
 
-Minimal tech blog built with **Bun**, **TypeScript**, deployed on **AWS App Runner**.
+Personal tech blog focused on **DevSecOps**, **AWS**, and **Game Dev**. Built with **Bun**, **TypeScript**, markdown files, and deployed on **AWS App Runner**.
 
 ## Stack
 
@@ -9,9 +9,20 @@ Minimal tech blog built with **Bun**, **TypeScript**, deployed on **AWS App Runn
 | Runtime  | Bun 1+                      |
 | Language | TypeScript (no build step)  |
 | Frontend | Vanilla HTML/CSS/JS         |
+| Content  | Markdown files w/ frontmatter |
 | Container| Docker (oven/bun:1-alpine)  |
 | Registry | AWS ECR                     |
 | Hosting  | AWS App Runner              |
+
+## Features
+
+- ✍️ **Markdown-based posts** with frontmatter (no CMS, no database)
+- 📅 **Interactive calendar** showing post publish dates
+- 🏷️ **Tag filtering** and stats sidebar
+- 🌓 **Dark/light theme toggle** with localStorage persistence
+- 📱 **Fully responsive** with mobile sidebar
+- 🚀 **CI/CD with GitHub Actions** - push to deploy
+- 📦 **Zero frontend dependencies** - pure HTML/CSS/JS
 
 ---
 
@@ -28,12 +39,18 @@ bun run dev     # → http://localhost:3000
 
 ```
 tech-blog/
+├── content/          ← Markdown posts with frontmatter
+│   ├── designing-this-blog.md
+│   ├── bun-typescript-apis.md
+│   └── ...
 ├── src/
 │   ├── server.ts     ← Bun HTTP server + API routes
-│   ├── data.ts       ← Post data + query helpers
+│   ├── data.ts       ← Markdown parser + post loader
 │   └── types.ts      ← Shared TypeScript types
 ├── public/
 │   └── index.html    ← Full frontend (no framework)
+├── .github/workflows/
+│   └── deploy.yml    ← CI/CD pipeline
 ├── Dockerfile
 ├── package.json
 └── tsconfig.json
@@ -50,6 +67,13 @@ tech-blog/
 ---
 
 ## Deploy to AWS
+
+### Prerequisites
+
+Add these secrets to your GitHub repo (Settings → Secrets → Actions):
+- `AWS_ACCESS_KEY_ID`
+- `AWS_SECRET_ACCESS_KEY`
+- `APPRUNNER_SERVICE_ARN` (after creating the service)
 
 ### 1. Create ECR repository
 
@@ -96,20 +120,33 @@ App Runner provisions HTTPS, load balancing, and auto-scaling automatically.
 
 ## Adding posts
 
-Edit `src/data.ts` — add a new entry to the `posts` array:
+Create a new markdown file in `content/` with frontmatter:
+
+```markdown
+---
+title: "My New Post Title"
+slug: my-new-post
+excerpt: "Brief description shown in the post list"
+tags: [devsecops, aws, security]
+publishedAt: 2026-02-26
+readingTime: 5
+draft: false
+---
+
+## Introduction
+
+Your content here in markdown...
 
 ```typescript
-{
-  id: "6",
-  slug: "my-new-post",
-  title: "My New Post",
-  excerpt: "One or two sentence summary shown in the list.",
-  content: `## Section\n\nYour content here.`,
-  tags: ["tag1", "tag2"],
-  publishedAt: new Date().toISOString(),
-  readingTime: 5,
-}
+code blocks supported
 ```
+
+## Next Section
+
+More content...
+```
+
+**Drafts:** Set `draft: true` to hide from the live site.
 
 Push to `main` — GitHub Actions builds and deploys automatically.
 
