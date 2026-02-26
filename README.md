@@ -16,13 +16,13 @@ Personal tech blog focused on **DevSecOps**, **AWS**, and **Game Dev**. Built wi
 
 ## Features
 
-- ✍️ **Markdown-based posts** with frontmatter (no CMS, no database)
-- 📅 **Interactive calendar** showing post publish dates
-- 🏷️ **Tag filtering** and stats sidebar
-- 🌓 **Dark/light theme toggle** with localStorage persistence
-- 📱 **Fully responsive** with mobile sidebar
-- 🚀 **CI/CD with GitHub Actions** - push to deploy
-- 📦 **Zero frontend dependencies** - pure HTML/CSS/JS
+-  **Markdown-based posts** with frontmatter (no CMS, no database)
+-  **Interactive calendar** showing post publish dates
+-  **Tag filtering** and stats sidebar
+-  **Dark/light theme toggle** with localStorage persistence
+-  **Fully responsive** with mobile sidebar
+-  **CI/CD with GitHub Actions** - push to deploy
+-  **Zero frontend dependencies** - pure HTML/CSS/JS
 
 ---
 
