@@ -4,8 +4,9 @@ WORKDIR /app
 COPY package.json bun.lockb* ./
 RUN bun install --frozen-lockfile --production
 
-COPY src/    ./src/
-COPY public/ ./public/
+COPY src/     ./src/
+COPY public/  ./public/
+COPY content/ ./content/
 COPY tsconfig.json ./
 
 ENV NODE_ENV=production
