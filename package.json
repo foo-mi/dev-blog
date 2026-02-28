@@ -4,7 +4,8 @@
   "scripts": {
     "dev": "bun run --watch src/server.ts",
     "start": "bun run src/server.ts",
-    "build": "bun build src/server.ts --outdir dist --target bun"
+    "build": "bun build src/server.ts --outdir dist --target bun",
+    "post": "bun run src/add-post.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

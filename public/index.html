@@ -714,6 +714,11 @@ document.getElementById('yr').textContent = now.getFullYear();
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function toLocalDateStr(iso) {
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 function fmtDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 }
@@ -894,7 +899,9 @@ const DOW    = ['Su','Mo','Tu','We','Th','Fr','Sa'];
 function renderCalendar() {
   document.getElementById('cal-label').textContent = `${MONTHS[calM]} ${calY}`;
 
-  const todayStr = now.toISOString().slice(0,10);
+  // ── FIX: use local date not UTC ──
+  const todayStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+
   const firstDow  = new Date(calY, calM, 1).getDay();
   const totalDays = new Date(calY, calM + 1, 0).getDate();
 
@@ -921,7 +928,8 @@ function renderCalendar() {
       el.classList.add('selected');
       document.getElementById('post-view').style.display = 'none';
       document.getElementById('list-view').style.display = 'block';
-      renderList(POSTS.filter(p => p.publishedAt.startsWith(el.dataset.date)));
+      // ── FIX: compare local dates not UTC ──
+      renderList(POSTS.filter(p => toLocalDateStr(p.publishedAt) === el.dataset.date));
       closeSidebar();
     });
   });
@@ -934,9 +942,8 @@ document.getElementById('cal-next').addEventListener('click', () => {
   calM++; if (calM > 11) { calM = 0; calY++; } renderCalendar();
 });
 
-// ── Boot ──────────────────────────────────────────────────────────────────────
+// ── Theme ─────────────────────────────────────────────────────────────────────
 
-// Theme initialization
 const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
 const savedTheme = localStorage.getItem('theme');
 const initialTheme = savedTheme || (prefersDark ? 'dark' : 'dark');
@@ -988,23 +995,21 @@ overlay.addEventListener('click', closeSidebar);
 
 setTheme(initialTheme);
 
-// ── Load data and boot ────────────────────────────────────────────────────────
+// ── Boot ──────────────────────────────────────────────────────────────────────
 
 async function boot() {
   try {
-    // Fetch posts and dates from API
     const [postsRes, datesRes] = await Promise.all([
       fetch('/api/posts'),
       fetch('/api/dates')
     ]);
     
     const postsData = await postsRes.json();
-    const datesData = await datesRes.json();
-    
     POSTS = postsData.data;
-    postDates = new Set(datesData.data);
-    
-    // Render everything
+
+    // ── FIX: build postDates from local dates not UTC ──
+    postDates = new Set(POSTS.map(p => toLocalDateStr(p.publishedAt)));
+
     renderList(POSTS);
     renderStats();
     renderTagCloud();
