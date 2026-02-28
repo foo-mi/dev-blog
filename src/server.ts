@@ -29,7 +29,8 @@ Bun.serve({
 
     // ── API ──────────────────────────────────────────────────
     if (pathname === "/api/posts") {
-      const summaries: PostSummary[] = getAllPosts().map(
+      const posts = await getAllPosts();
+      const summaries: PostSummary[] = posts.map(
         ({ id, slug, title, excerpt, tags, publishedAt, readingTime }) =>
           ({ id, slug, title, excerpt, tags, publishedAt, readingTime })
       );
@@ -38,12 +39,13 @@ Bun.serve({
 
     if (pathname.startsWith("/api/posts/")) {
       const slug = pathname.slice("/api/posts/".length);
-      const post = getPostBySlug(slug);
+      const post = await getPostBySlug(slug);
       return post ? ok(post) : err("Post not found");
     }
 
     if (pathname === "/api/dates") {
-      return ok(getPostDates());
+      const dates = await getPostDates();
+      return ok(dates);
     }
 
     // ── Static ───────────────────────────────────────────────

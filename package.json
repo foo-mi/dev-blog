@@ -2,11 +2,15 @@
   "name": "tech-blog",
   "version": "1.0.0",
   "scripts": {
-    "dev":   "bun run --watch src/server.ts",
+    "dev": "bun run --watch src/server.ts",
     "start": "bun run src/server.ts",
     "build": "bun build src/server.ts --outdir dist --target bun"
   },
   "devDependencies": {
     "@types/bun": "latest"
+  },
+  "dependencies": {
+    "@aws-sdk/client-dynamodb": "^3.1000.0",
+    "@aws-sdk/util-dynamodb": "^3.996.1"
   }
 }
