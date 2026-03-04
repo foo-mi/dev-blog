@@ -5,7 +5,7 @@ import { join } from "path";
 import type { Post } from "./types";
 
 // ── Put the filename of your new post here ───────────────────
-const FILENAME = "my-new-post.md";
+const FILENAME = "getting-started-with-phaser.md";
 // ────────────────────────────────────────────────────────────
 
 function parseFrontmatter(content: string) {
