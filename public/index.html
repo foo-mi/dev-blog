@@ -347,6 +347,25 @@
 
     .post-body p { margin-bottom: 1.4em; }
 
+    .post-body a {
+      color: var(--olive-text);
+      text-decoration: underline;
+      text-decoration-thickness: 1.5px;
+      text-underline-offset: 2px;
+      transition: color var(--ease), text-decoration-color var(--ease);
+    }
+
+    .post-body a:hover {
+      color: var(--burg-text);
+      text-decoration-color: var(--burg-text);
+    }
+
+    .post-body a:focus-visible {
+      outline: 2px solid var(--burg-text);
+      outline-offset: 2px;
+      border-radius: 2px;
+    }
+
     .post-body pre {
       background: var(--surface);
       border: 1px solid var(--border);
@@ -467,6 +486,12 @@
     }
 
     .cal-day.empty { pointer-events: none; }
+
+    .cal-day.muted {
+      color: var(--muted);
+      opacity: 0.5;
+      pointer-events: none;
+    }
 
     .cal-day.has-post {
       color: var(--heading);
@@ -632,7 +657,7 @@
         <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">🌙</button>
         <button class="sidebar-toggle" id="sidebar-toggle" aria-label="Toggle sidebar">☰</button>
       </div>
-      <p class="tagline">software & game developement<br>a place where i can share my progress and ideas</p>
+      <p class="tagline">games and tech yap<br>progess updates</p>
     </div>
   </header>
 
@@ -709,6 +734,11 @@ let activeTag = null;
 const now = new Date();
 let calY = now.getFullYear();
 let calM = now.getMonth();
+const PREVIEW_LOCAL = new URLSearchParams(window.location.search).get('preview') === 'local';
+
+function apiPath(path) {
+  return PREVIEW_LOCAL ? `${path}?preview=local` : path;
+}
 
 document.getElementById('yr').textContent = now.getFullYear();
 
@@ -730,16 +760,21 @@ function md2html(text) {
   );
   // inline code
   text = text.replace(/`([^`]+)`/g, '<code>$1</code>');
-  // h2
-  text = text.replace(/^## (.+)$/gm, '<h2>$1</h2>');
+  // headings: #..###### and tolerate missing space after hashes
+  text = text.replace(/^(#{1,6})\s*(.+)$/gm, (_, hashes, title) => {
+    const level = hashes.length;
+    return `<h${level}>${title.trim()}</h${level}>`;
+  });
   // bold
   text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+  // links
+  text = text.replace(/\[([^\]]+)\]\(([^\s)]+)\)/g, '<a href="$2">$1</a>');
   // paragraphs: split on double newline
   const blocks = text.split(/\n\n+/);
   return blocks.map(b => {
     b = b.trim();
     if (!b) return '';
-    if (b.startsWith('<h2>') || b.startsWith('<pre>')) return b;
+    if (/^<h[1-6]>/.test(b) || b.startsWith('<pre>')) return b;
     // numbered list
     if (/^\d+\.\s/.test(b)) {
       const items = b.split('\n').filter(Boolean);
@@ -789,7 +824,7 @@ async function openPost(slug) {
   let fullPost = p;
   if (!p.content) {
     try {
-      const res = await fetch(`/api/posts/${slug}`);
+      const res = await fetch(apiPath(`/api/posts/${slug}`));
       const json = await res.json();
       fullPost = json.data;
     } catch (err) {
@@ -904,11 +939,13 @@ function renderCalendar() {
 
   const firstDow  = new Date(calY, calM, 1).getDay();
   const totalDays = new Date(calY, calM + 1, 0).getDate();
+  const prevMonthDays = new Date(calY, calM, 0).getDate();
 
   let html = DOW.map(d => `<div class="cal-dow">${d}</div>`).join('');
 
   for (let i = 0; i < firstDow; i++) {
-    html += `<div class="cal-day empty"></div>`;
+    const prevDay = prevMonthDays - firstDow + i + 1;
+    html += `<div class="cal-day muted">${prevDay}</div>`;
   }
 
   for (let d = 1; d <= totalDays; d++) {
@@ -917,6 +954,11 @@ function renderCalendar() {
     const today = ds === todayStr;
     const cls   = ['cal-day', has ? 'has-post' : '', today ? 'today' : ''].filter(Boolean).join(' ');
     html += `<div class="${cls}" data-date="${ds}">${d}</div>`;
+  }
+
+  const trailing = (7 - ((firstDow + totalDays) % 7)) % 7;
+  for (let d = 1; d <= trailing; d++) {
+    html += `<div class="cal-day muted">${d}</div>`;
   }
 
   const grid = document.getElementById('cal-grid');
@@ -1000,8 +1042,8 @@ setTheme(initialTheme);
 async function boot() {
   try {
     const [postsRes, datesRes] = await Promise.all([
-      fetch('/api/posts'),
-      fetch('/api/dates')
+      fetch(apiPath('/api/posts')),
+      fetch(apiPath('/api/dates'))
     ]);
     
     const postsData = await postsRes.json();
